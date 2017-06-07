@@ -2,7 +2,7 @@
 
 const chai = require('chai');
 const chaiHttp = require('chai-http');
-const chaiDateTime = require('chai-datetime');
+const chaiDateString = require('chai-date-string');
 const faker = require('faker');
 const mongoose = require('mongoose');
 
@@ -15,7 +15,7 @@ const {app, runServer, closeServer} = require('../server');
 const {TEST_DATABASE_URL} = require('../config');
 
 chai.use(chaiHttp);
-chai.use(chaiDateTime);
+chai.use(chaiDateString);
 
 // used to put randomish documents in db
 // so we have data to work with and assert about.
@@ -51,8 +51,8 @@ function generateBlogPostData() {
 // to ensure  data from one test does not stick
 // around for next one
 function tearDownDb() {
-    console.warn('Deleting database');
-    return mongoose.connection.dropDatabase();
+  console.warn('Deleting database');
+  return mongoose.connection.dropDatabase();
 }
 
 
@@ -78,7 +78,7 @@ describe('Blog Posts API resource', function() {
     return closeServer();
   });
 
- describe('GET endpoint', function() {
+  describe('GET endpoint', function() {
 
     it('should return all existing blog posts', function() {
       // strategy:
@@ -132,8 +132,21 @@ describe('Blog Posts API resource', function() {
           resPost.id.should.equal(post.id);
           resPost.title.should.equal(post.title);
           resPost.content.should.equal(post.content);
-          resPost.created.should.be.a('string');
-          post.created.should.be.a('Date');
+
+          //because time comparisons are the worst and make no sense
+          resPost.created.should.be.a.dateString();
+          post.created.should.be.a.dateString();
+          
+        //   console.log(resPost.created);
+        //   //console.log(new Date(resPost.created));
+        //   console.log(post.created);
+        //   const time = post.created;
+        //   console.log(time);
+        //   //console.log((post.created).toString());
+        //   resPost.created.should.equal(time);
+        //   post.created.should.satisfy(function(date) {
+        //     return date === new Date(resPost.created);
+        //   }); //be.a('Date');
           resPost.author.should.contain(post.author.lastName);
 
         });
