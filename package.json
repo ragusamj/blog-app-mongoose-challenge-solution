@@ -22,9 +22,10 @@
   "license": "MIT",
   "devDependencies": {
     "chai": "^4.0.2",
+    "chai-date-string": "^0.1.0",
+    "chai-datetime": "^1.4.1",
     "chai-http": "^3.0.0",
-    "chai-datetime":"^1.4.1",
-    "chai-date-string":"^0.1.0", 
+    "chai-moment": "^0.1.0",
     "faker": "^4.1.0",
     "mocha": "^3.4.2"
   }

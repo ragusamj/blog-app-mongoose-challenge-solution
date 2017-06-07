@@ -2,6 +2,7 @@
 
 const chai = require('chai');
 const chaiHttp = require('chai-http');
+const chaiMoment = require('chai-moment');
 const chaiDateString = require('chai-date-string');
 const faker = require('faker');
 const mongoose = require('mongoose');
@@ -16,6 +17,7 @@ const {TEST_DATABASE_URL} = require('../config');
 
 chai.use(chaiHttp);
 chai.use(chaiDateString);
+chai.use(chaiMoment);
 
 // used to put randomish documents in db
 // so we have data to work with and assert about.
@@ -136,10 +138,14 @@ describe('Blog Posts API resource', function() {
           //because time comparisons are the worst and make no sense
           resPost.created.should.be.a.dateString();
           post.created.should.be.a.dateString();
+          resPost.created.should.be.sameMoment(post.created);
+         
           
-        //   console.log(resPost.created);
+         console.log(resPost.created);
         //   //console.log(new Date(resPost.created));
-        //   console.log(post.created);
+        console.log(post.created);
+         
+
         //   const time = post.created;
         //   console.log(time);
         //   //console.log((post.created).toString());
@@ -170,6 +176,7 @@ describe('Blog Posts API resource', function() {
         .then(res=>{
           //Set our dummy ID to match something already in the DB
           dataToPut.id = res.id;
+          dataToPut.created = res.created;
 
           //Here's where we actually do the PUT - using the ID we just comandeered
           return chai.request(app)
@@ -192,6 +199,7 @@ describe('Blog Posts API resource', function() {
               res.body.author.should.equal('lil Dude McGee');
               res.body.title.should.equal(dataToPut.title);
               res.body.content.should.equal(dataToPut.content);
+              res.body.created.should.be.sameMoment(dataToPut.created);
             });
         });
 
