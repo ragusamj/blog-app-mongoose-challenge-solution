@@ -151,6 +151,74 @@ describe('Blog Posts API resource', function() {
 
         });
     });
+
+    it('should update the correct record on PUT', function(){
+      // Some dummy data to "put"
+      const dataToPut = {
+        author: {
+          firstName: 'lil Dude',
+          lastName: 'McGee'
+        },
+        title: 'An interesting thought',
+        content: 'What if our dogs only return the ball bc they think we enjoy throwing it?'
+      };
+
+      //Then we're going to steal an ID from one of the posts already in the DB
+      return BlogPost
+        .findOne()
+        .exec()
+        .then(res=>{
+          //Set our dummy ID to match something already in the DB
+          dataToPut.id = res.id;
+
+          //Here's where we actually do the PUT - using the ID we just comandeered
+          return chai.request(app)
+            .put(`/posts/${dataToPut.id}`)
+            .send(dataToPut);
+        })
+        // Now we check for expected results in our returned object.
+        .then(res=>{
+          res.should.have.status(201);
+          res.body.author.should.equal('lil Dude McGee');
+          res.body.title.should.equal(dataToPut.title);
+          res.body.content.should.equal(dataToPut.content);
+
+          // To take it a step further, let's do a get with the ID we are using,
+          // and test that it's correct - verifying that our data is IN the database and persisting
+          return chai.request(app)
+            .get(`/posts/${dataToPut.id}`)
+            .then(res=>{
+              res.should.have.status(200);
+              res.body.author.should.equal('lil Dude McGee');
+              res.body.title.should.equal(dataToPut.title);
+              res.body.content.should.equal(dataToPut.content);
+            });
+        });
+
+    });
+
+    it('should delete a post correctly', function(){
+      // variable to store our 'findOne'
+      let post;
+
+      BlogPost
+        .findOne()
+        .exec()
+        .then(res=>{
+          post = res.body;
+          return chai.request(app)
+            .delete(`/posts/${post.id}`);
+        })
+        .then(res=>{
+          res.should.have.status(204);
+          return BlogPost.findById(post.id).exec();
+        })
+        .then(thatPost=>{
+          should.not.exist(thatPost);
+        });
+
+    });
+
   });
 
 });
